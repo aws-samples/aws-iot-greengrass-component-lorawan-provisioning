@@ -1,0 +1,43 @@
+---
+RecipeFormatVersion: "2020-01-25"
+ComponentName: "abenfat.lorawan.ggbasics"
+ComponentVersion: "1.0.0"
+ComponentDescription: "A component that provisions and connects LoRaWAN Gateways (Rpi host) using Basics Station"
+ComponentPublisher: "abenfat"
+ComponentConfiguration:
+  DefaultConfiguration:
+    LoraRegion: "EU868" # AWS IoT Core for LoRaWAN supports EU863-870, US902-928, AU915, and AS923-1 frequency bands
+ComponentDependencies:
+  aws.greengrass.TokenExchangeService:
+    VersionRequirement: '^2.0.0'
+    DependencyType: HARD
+Manifests:
+- Platform:
+    os: linux
+  Lifecycle:
+    Bootstrap:
+      RequiresPrivilege: true
+      Timeout: 1000
+      Script: |-
+        rm -rf *
+        echo "Installing python3"
+        apt-get install python3-pip -y
+        sleep 1
+    Run:
+      RequiresPrivilege: true
+      Script: |-
+        echo "Running installation lifecycle step"
+        cp -r {artifacts:decompressedPath}/ggbasics/* $PWD
+        chmod +x station
+        chmod +x reset_gw.sh  
+        echo "Gateway Provisioning to AWS IoT Core for LoRaWAN"
+        PYTHONPATH="./dependencies"  python3 main.py {configuration:/LoraRegion}
+        echo "Run Basics Station"
+        RADIODEV=/dev/spidev0.0 ./station -f
+    Shutdown:
+      RequiresPrivilege: true
+      Script: |-
+        kill -9 $(ps aux | grep '[s]tation' | awk '{print $2}')
+  Artifacts:
+  - Uri: s3://greengrass-component-artifacts-123456789012-awsregion/artifacts/ggbasics.zip
+    Unarchive: "ZIP"
