@@ -1,4 +1,4 @@
-# Using AWS IoT Greengrass to provision and manage your LoRaWAN gateways at scale
+# Using AWS IoT Greengrass to provision and connect your LoRaWAN gateways at scale
 
 **This implementation is for demonstration purposes only.**
 
