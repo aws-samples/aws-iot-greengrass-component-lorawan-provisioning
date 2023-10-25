@@ -1,4 +1,4 @@
-#!/usr/local/opt/python/bin/python3.7
+#!/usr/local/opt/python/bin/python3.10
 
 import sys
 import json
